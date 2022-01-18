@@ -7,11 +7,6 @@ const path = require('path');
 
 dotenv.config();
 
-const client = new Client({
-    intents: [Intents.FLAGS.GUILDS,
-              Intents.FLAGS.GUILD_MESSAGES]
-});
-
 const commands = [];
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 client.commands = new Collection();
@@ -19,12 +14,16 @@ client.commands = new Collection();
 const guildId = process.env.GUILD_ID;
 const clientId = process.env.CLIENT_ID;
 
+const client = new Client({
+    intents: [Intents.FLAGS.GUILDS,
+              Intents.FLAGS.GUILD_MESSAGES]
+});
+
 for (const file of commandFiles) {
 	const command = require(`./commands/${file}`);
 	commands.push(command.data.toJSON());
     client.commands.set(command.data.name, command);
 }
-
 
 client.on("ready", () => {
     console.log("Bot is online.");
@@ -46,17 +45,14 @@ client.on("ready", () => {
     })();
 });
 
-
-
 client.on("interactionCreate", async interaction => {
-    if (!interaction.isCommand())  {
-        return;
-    }
+    if (!interaction.isCommand()) return;
     
     const command = client.commands.get(interaction.commandName);
-    if (!command) return;
 
+    if (!command) return;
     console.log(command);
+
     try {
         await command.execute(interaction);
     } catch (err) {
@@ -66,9 +62,7 @@ client.on("interactionCreate", async interaction => {
             content: "An error occured while executing the command.",
             ephemeral: true
         });
-    }
-
-    
+    } 
 });
 
 client.login(process.env.BOT_TOKEN);
