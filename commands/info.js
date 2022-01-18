@@ -9,7 +9,7 @@ module.exports = {
 
         //TODO: 
         /* 
-            Connect to DyanmoDB database and fetch the results.
+            Connect to DyanmoDB database and fetch list of all channels (Database won't be big).
             Format the results and send back as an embedded message.
         */
         

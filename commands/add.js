@@ -18,7 +18,7 @@ module.exports = {
             GET request from twitch api and check if valid twitch channel.
             IF channel is not valid, reply back with a "channel not found message"
             
-            IF channel is valid, send the channel_id/user_id to REST API on AWS
+            IF channel is valid, POST the channel_id/user_id to REST API on AWS
             REST API will trigger lambda function to subscribe the twitch channel for live notifications.
             Lambda functions should send JSON payload back to API which will return back to this discord bot.
             Send a success/error message to user.

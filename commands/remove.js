@@ -19,8 +19,8 @@ module.exports = {
             IF NOT: Send message back saying user not found 
                 (Check spelling! Or use /info command of added channel names)
 
-            IF EXISTS: Send the subscription id to API which will trigger lambda function for unsubscribing.
-                Recieve results and display message
+            IF EXISTS: POST the subscription id to API which will trigger lambda function for unsubscribing.
+                Receive results and display message
         */
 
         interaction.reply({
