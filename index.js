@@ -9,7 +9,6 @@ dotenv.config();
 
 const commands = [];
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
-client.commands = new Collection();
 
 const guildId = process.env.GUILD_ID;
 const clientId = process.env.CLIENT_ID;
@@ -18,6 +17,8 @@ const client = new Client({
     intents: [Intents.FLAGS.GUILDS,
               Intents.FLAGS.GUILD_MESSAGES]
 });
+
+client.commands = new Collection();
 
 for (const file of commandFiles) {
 	const command = require(`./commands/${file}`);
