@@ -1,6 +1,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const fetch = require ("node-fetch");
 const TwitchAPI = require('../twitch/channel-verify');
+const AWS_API = require('../aws/aws-helper');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -14,14 +15,6 @@ module.exports = {
         ),
 
     async execute(interaction) {
-
-        //TODO: 
-        /* 
-            IF channel is valid, POST the channel_id/user_id to REST API on AWS
-            REST API will trigger lambda function to subscribe the twitch channel for live notifications.
-            Lambda functions should send JSON payload back to API which will return back to this discord bot.
-            Send a success/error message to user.
-        */
 
         await interaction.deferReply({ ephemeral: true });
 
@@ -41,24 +34,21 @@ module.exports = {
                     '```apache\n' + channelName + '\n```is already in the system.');
             }
             else {
-            /*
-            var channel = {
-                type: "subscribe",
-                broadcaster_user_id: channelName,
-                } 
-                await fetch(process.env.SUBSCRIPTION_API_URL, {
-                    method: "POST",
-                    headers: {'Content-Type': 'application/json'}, 
-                    body: JSON.stringify(channel)
-                }).then(res => {
-                    return res.json();
-                }).then(function(body) {
-                    console.log(body)
-                })
-                */
-                await interaction.editReply("test123");
-            }
             
+                console.log(`id: ${id}`);
+                const message = await AWS_API.subscribeChannel(id);
+                console.log(message);
+                if (message === 'Subscribed') {
+                    await interaction.editReply(
+                        '```apache\n' + channelName + '\n```has been added to the system.'
+                    );
+                }
+                else {
+                    await interaction.editReply(
+                        'Verification stage failed.'
+                    );
+                }
+            }
         }
     }
 }

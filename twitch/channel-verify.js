@@ -37,8 +37,6 @@ module.exports = {
         }).then(res => {
             return res.json();
         }).then(res => {
-            
-            console.log("body: " + res.data);
             for (let i = 0; i < res.data.length; i++) {
                 if (res.data[i].condition.broadcaster_user_id === channel_id) {
                     return true;
