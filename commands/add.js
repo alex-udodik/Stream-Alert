@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const fetch = require ("node-fetch");
+const TwitchAPI = require('../twitch/channel-verify');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -16,9 +17,6 @@ module.exports = {
 
         //TODO: 
         /* 
-            GET request from twitch api and check if valid twitch channel.
-            IF channel is not valid, reply back with a "channel not found message"
-            
             IF channel is valid, POST the channel_id/user_id to REST API on AWS
             REST API will trigger lambda function to subscribe the twitch channel for live notifications.
             Lambda functions should send JSON payload back to API which will return back to this discord bot.
@@ -28,24 +26,39 @@ module.exports = {
         await interaction.deferReply({ ephemeral: true });
 
         const channelName = interaction.options.getString('channelname');
-        var channel = {
-            type: "subscribe",
-            broadcaster_user_id: channelName,
-        } 
+        const id = await TwitchAPI.verifyChannelName(channelName);
 
-        console.log("Channel name: " + channelName);
-        console.log(channel);
+        if (id === 'invalid') {
+            await interaction.editReply(
+                'Unable to find: ```fix\n' + channelName + '\n```from the Twitch API. Please make sure the name is spelled correctly.');
+        }
+        else {
 
-        await fetch(process.env.SUBSCRIPTION_API_URL, {
-            method: "POST",
-            headers: {'Content-Type': 'application/json'}, 
-            body: JSON.stringify(channel)
-        }).then(res => {
-            return res.json();
-        }).then(function(body) {
-            console.log(body)
-        })
-
-        await interaction.editReply("test123");
+            const channelSubscribedAlready = await TwitchAPI.verifyChannelIsSubscribed(id);
+            
+            if (channelSubscribedAlready) {
+                await interaction.editReply(
+                    '```apache\n' + channelName + '\n```is already in the system.');
+            }
+            else {
+            /*
+            var channel = {
+                type: "subscribe",
+                broadcaster_user_id: channelName,
+                } 
+                await fetch(process.env.SUBSCRIPTION_API_URL, {
+                    method: "POST",
+                    headers: {'Content-Type': 'application/json'}, 
+                    body: JSON.stringify(channel)
+                }).then(res => {
+                    return res.json();
+                }).then(function(body) {
+                    console.log(body)
+                })
+                */
+                await interaction.editReply("test123");
+            }
+            
+        }
     }
 }
