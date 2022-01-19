@@ -59,7 +59,7 @@ client.on("interactionCreate", async interaction => {
     } catch (err) {
         if (err) console.error(err);
 
-        await interaction.reply({
+        await interaction.editReply({
             content: "An error occured while executing the command.",
             ephemeral: true
         });

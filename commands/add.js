@@ -25,12 +25,16 @@ module.exports = {
             Send a success/error message to user.
         */
 
-        await interaction.deferReply();
+        await interaction.deferReply({ ephemeral: true });
 
+        const channelName = interaction.options.getString('channelname');
         var channel = {
             type: "subscribe",
-            broadcaster_user_id: "my_channel_id",
+            broadcaster_user_id: channelName,
         } 
+
+        console.log("Channel name: " + channelName);
+        console.log(channel);
 
         await fetch(process.env.SUBSCRIPTION_API_URL, {
             method: "POST",
@@ -42,9 +46,6 @@ module.exports = {
             console.log(body)
         })
 
-        await interaction.followUp({
-            content: 'test123',
-            ephemeral: true
-        });
+        await interaction.editReply("test123");
     }
 }
