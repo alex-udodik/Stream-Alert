@@ -1,4 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const fetch = require ("node-fetch");
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -24,7 +25,24 @@ module.exports = {
             Send a success/error message to user.
         */
 
-        interaction.reply({
+        await interaction.deferReply();
+
+        var channel = {
+            type: "subscribe",
+            broadcaster_user_id: "my_channel_id",
+        } 
+
+        await fetch(process.env.SUBSCRIPTION_API_URL, {
+            method: "POST",
+            headers: {'Content-Type': 'application/json'}, 
+            body: JSON.stringify(channel)
+        }).then(res => {
+            return res.json();
+        }).then(function(body) {
+            console.log(body)
+        })
+
+        await interaction.followUp({
             content: 'test123',
             ephemeral: true
         });
