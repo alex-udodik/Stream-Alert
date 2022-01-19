@@ -1,4 +1,8 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const fetch = require ("node-fetch");
+const TwitchAPI = require('../twitch/channel-verify');
+const AWS_API = require('../aws/aws-helper');
+const DynamoDB = require('../aws/dynamoDB');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -13,19 +17,34 @@ module.exports = {
 
     async execute(interaction) {
 
-        //TODO: 
-        /* 
-            Connect to DynamoDB and check if channel name exists.
-            IF NOT: Send message back saying user not found 
-                (Check spelling! Or use /info command of added channel names)
+        await interaction.deferReply({ ephemeral: true });
 
-            IF EXISTS: POST the subscription id to API which will trigger lambda function for unsubscribing.
-                Receive results and display message
-        */
+        const channelName = interaction.options.getString('channelname');
+        const id = await TwitchAPI.verifyChannelName(channelName);
+        
 
-        interaction.reply({
-            content: 'test123',
-            ephemeral: true
-        });
+        if (id === 'invalid') {
+            await interaction.editReply(
+                'Unable to find: ```fix\n' + channelName + '\n```from the Twitch API. Please make sure the name is spelled correctly.');
+        }
+        else {
+
+            const channelSubscribedAlready = await TwitchAPI.verifyChannelIsSubscribed(id);
+
+            if (channelSubscribedAlready) {
+                //fetch subscription id from dynamodb
+
+                const subscription_id = await DynamoDB.fetchSubscriptionID(id);
+                console.log("sub id: " + subscription_id);
+                await interaction.editReply(
+                    'Preparing to remove channel.'
+                );
+            }
+            else {
+                await interaction.editReply(
+                    '```fix\n' + channelName + '\n```is not subscribed for live notifications.'
+                );
+            }
+        }
     }
 }
