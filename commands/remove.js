@@ -33,9 +33,9 @@ module.exports = {
             if (channelSubscribedAlready) {
 
                 const response = await AWS_API.unsubscribeChannel(id);
-                console.log("response: ", response.body);
+                console.log("response: ", response);
 
-                if (response.body === 'Success') {
+                if (response === 'Success') {
                     await interaction.editReply(
                         '```fix\n' + channelName + '\n```has been removed from the system.'
                     );
