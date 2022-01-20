@@ -13,12 +13,15 @@ module.exports = {
 
         const data = await TwitchAPI.getChannelSubscriptions();
 
+        console.log("subscriptions: ", data);
         const size = data.data.length
 
         var url = [`https://api.twitch.tv/helix/users?id=${data.data[0].condition.broadcaster_user_id}`];
 
         for (var i = 1; i < size; i++) {
-            url.push(`&id=${data.data[i].condition.broadcaster_user_id}`);
+            if (data.data[i].status !== 'webhook_callback_verification_failed') {
+                url.push(`&id=${data.data[i].condition.broadcaster_user_id}`);
+            }
         }
 
         var users_url = url.join("");
@@ -40,7 +43,10 @@ module.exports = {
         const embed = {
             title: "Current Twitch Channels",
             description: description,
-            color: 0x9146FF
+            color: 0x9146FF,
+            footer: {
+                text: `Total: ${channels.length}`
+            }
         }
             
         await interaction.editReply({
