@@ -1,5 +1,8 @@
 const fetch = require ("node-fetch");
 
+
+//TODO: Lots of repeated code. Need to make some sort of builder for api endpoints.
+
 module.exports = {
     verifyChannelName: async function(channel) {
 
@@ -44,6 +47,41 @@ module.exports = {
             }
 
             return false;
+        }).catch(err => {
+            return err;
+        });
+    },
+
+    getChannelSubscriptions: async function() {
+        const bearerToken = await getBearerToken();
+        const url = 'https://api.twitch.tv/helix/eventsub/subscriptions';
+
+        return await fetch(url, {
+            method: "GET",
+            headers: {'Client-ID': process.env.TWITCH_CLIENT_ID,
+            Authorization: `Bearer ${bearerToken}`
+            }
+        }).then(res => {
+            return res.json();
+        }).then(res => {
+            return res;
+        }).catch(err => {
+            return err;
+        });
+    },
+
+    getChannels: async function(url) {
+
+        const bearerToken = await getBearerToken();
+        return await fetch(url, {
+            method: "GET",
+            headers: {'Client-ID': process.env.TWITCH_CLIENT_ID,
+            Authorization: `Bearer ${bearerToken}`
+            }
+        }).then(res => {
+            return res.json();
+        }).then(res => {
+            return res;
         }).catch(err => {
             return err;
         });
