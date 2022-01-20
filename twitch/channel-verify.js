@@ -65,7 +65,16 @@ module.exports = {
         }).then(res => {
             return res.json();
         }).then(res => {
-            return res;
+            
+            console.log("subscriptions: ", res);
+            var ids = [];
+
+            for (var i = 0; i < res.data.length; i++) {
+                if (res.data[i].status === 'enabled') {
+                    ids.push(res.data[i].condition.broadcaster_user_id);
+                }
+            }
+            return ids;
         }).catch(err => {
             return err;
         });

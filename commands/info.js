@@ -13,45 +13,64 @@ module.exports = {
 
         const data = await TwitchAPI.getChannelSubscriptions();
 
-        console.log("subscriptions: ", data);
-        const size = data.data.length
+        const size = data.length
 
-        var url = [`https://api.twitch.tv/helix/users?id=${data.data[0].condition.broadcaster_user_id}`];
-
-        for (var i = 1; i < size; i++) {
-            if (data.data[i].status !== 'webhook_callback_verification_failed') {
-                url.push(`&id=${data.data[i].condition.broadcaster_user_id}`);
+        if (size === 0) {
+            const embed = {
+                title: "Current Twitch Channels",
+                description: "",
+                color: 0x9146FF,
+                footer: {
+                    text: `Total: 0`
+                }
             }
+                
+            await interaction.editReply({
+                embeds: [ embed ],
+                ephemeral: true
+            });
+            return;
         }
+        else {
+            var url = [`https://api.twitch.tv/helix/users?id=${data[0]}`];
 
-        var users_url = url.join("");
-        
-        const channelsResponse = await TwitchAPI.getChannels(users_url);
-
-        var channels = [];
-        var channelsSize = channelsResponse.data.length
-
-        for (var i = 0; i < channelsSize; i++) {
-            channels.push(channelsResponse.data[i].display_name);
-        }
-
-        channels.sort(function (a, b) {
-            return a.toLowerCase().localeCompare(b.toLowerCase());
-        });
-        const description = channels.join("\n");
-
-        const embed = {
-            title: "Current Twitch Channels",
-            description: description,
-            color: 0x9146FF,
-            footer: {
-                text: `Total: ${channels.length}`
+            for (var i = 1; i < size; i++) {
+                if (data[i].status !== 'webhook_callback_verification_failed') {
+                    url.push(`&id=${data[i]}`);
+                }
             }
-        }
+    
+            var users_url = url.join("");
             
-        await interaction.editReply({
-            embeds: [ embed ],
-            ephemeral: true
-        });
+            const channelsResponse = await TwitchAPI.getChannels(users_url);
+    
+            var channels = [];
+            var channelsSize = channelsResponse.data.length
+    
+            for (var i = 0; i < channelsSize; i++) {
+                channels.push(channelsResponse.data[i].display_name);
+            }
+    
+            channels.sort(function (a, b) {
+                return a.toLowerCase().localeCompare(b.toLowerCase());
+            });
+            const description = channels.join("\n");
+    
+            const embed = {
+                title: "Current Twitch Channels",
+                description: description,
+                color: 0x9146FF,
+                footer: {
+                    text: `Total: ${channels.length}`
+                }
+            }
+                
+            await interaction.editReply({
+                embeds: [ embed ],
+                ephemeral: true
+            });
+
+            return;
+        }  
     }
 }
