@@ -41,7 +41,8 @@ module.exports = {
             return res.json();
         }).then(res => {
             for (let i = 0; i < res.data.length; i++) {
-                if (res.data[i].condition.broadcaster_user_id === channel_id) {
+                if (res.data[i].condition.broadcaster_user_id === channel_id && 
+                    res.data[i].status === 'enabled') {
                     return true;
                 }
             }
