@@ -2,7 +2,6 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const fetch = require ("node-fetch");
 const TwitchAPI = require('../twitch/channel-verify');
 const AWS_API = require('../aws/aws-helper');
-const DynamoDB = require('../aws/dynamoDB');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -32,13 +31,20 @@ module.exports = {
             const channelSubscribedAlready = await TwitchAPI.verifyChannelIsSubscribed(id);
 
             if (channelSubscribedAlready) {
-                //fetch subscription id from dynamodb
 
-                const subscription_id = await DynamoDB.fetchSubscriptionID(id);
-                console.log("sub id: " + subscription_id);
-                await interaction.editReply(
-                    'Preparing to remove channel.'
-                );
+                const response = await AWS_API.unsubscribeChannel(id);
+                console.log("response: ", response.body);
+
+                if (response.body === 'Success') {
+                    await interaction.editReply(
+                        '```fix\n' + channelName + '\n```has been removed from the system.'
+                    );
+                }
+                else {
+                    await interaction.editReply(
+                        'An internal error has occured'
+                    );
+                }
             }
             else {
                 await interaction.editReply(
